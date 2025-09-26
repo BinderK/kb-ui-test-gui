@@ -1,8 +1,10 @@
+import ProjectList from './components/ProjectList';
+
 function App() {
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Hello World!</h1>
-      <p>KB UI Test GUI is running in Electron!</p>
+    <div style={{ padding: '20px' }}>
+      <h1 style={{ textAlign: 'center' }}>KB UI Test GUI</h1>
+      <ProjectList />
     </div>
   );
 }
