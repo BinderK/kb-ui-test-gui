@@ -36,10 +36,9 @@ describe('Redux + React Integration Tests', () => {
       renderWithRealStore(<ProjectList />, realStore);
       
       // User creates a project
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       
       // Verify UI updated
-      expect(screen.getByText('Projects (1)')).toBeInTheDocument();
       expect(screen.getByText('Project 1')).toBeInTheDocument();
       
       // Verify REAL Redux store updated
@@ -56,13 +55,12 @@ describe('Redux + React Integration Tests', () => {
       renderWithRealStore(<ProjectList />, realStore);
       
       // Create first project
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       
       // Create second project
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       
       // Verify UI
-      expect(screen.getByText('Projects (2)')).toBeInTheDocument();
       expect(screen.getByText('Project 1')).toBeInTheDocument();
       expect(screen.getByText('Project 2')).toBeInTheDocument();
       
@@ -74,8 +72,8 @@ describe('Redux + React Integration Tests', () => {
     });
   });
 
-  describe('Project Selection Flow', () => {
-    it('should select project and update current project in store', async () => {
+  describe('Suite Management Flow', () => {
+    it('should add suite and update store', async () => {
       const user = userEvent.setup();
       
       // Pre-populate store with a project
@@ -90,6 +88,8 @@ describe('Redux + React Integration Tests', () => {
           },
         ],
         currentProject: null,
+        suites: [],
+        currentSuite: null,
         loading: false,
         error: null,
       };
@@ -101,26 +101,22 @@ describe('Redux + React Integration Tests', () => {
       
       renderWithRealStore(<ProjectList />, storeWithProject);
       
-      // Initially no current project
-      expect(storeWithProject.getState().projects.currentProject).toBeNull();
-      expect(screen.queryByText('Current Project')).not.toBeInTheDocument();
+      // Initially no suites
+      expect(storeWithProject.getState().projects.suites).toHaveLength(0);
+      expect(screen.getByText('Test Suites (0)')).toBeInTheDocument();
       
-      // User selects project
-      const projectButtons = screen.getAllByRole('button');
-      const projectButton = projectButtons.find(button => 
-        button.textContent?.includes('Test Project') && 
-        button.textContent?.includes('A test project')
-      );
-      
-      await user.click(projectButton!);
+      // User adds suite
+      await user.click(screen.getByText('+ Add Suite'));
       
       // Verify UI updated
-      expect(screen.getByText('Current Project')).toBeInTheDocument();
+      expect(screen.getByText('Test Suites (1)')).toBeInTheDocument();
+      expect(screen.getByText('Suite 1')).toBeInTheDocument();
       
       // Verify REAL store updated
       const state = storeWithProject.getState();
-      expect(state.projects.currentProject).not.toBeNull();
-      expect(state.projects.currentProject?.name).toBe('Test Project');
+      expect(state.projects.suites).toHaveLength(1);
+      expect(state.projects.suites[0].name).toBe('Suite 1');
+      expect(state.projects.suites[0].projectId).toBe('1');
     });
   });
 
@@ -132,26 +128,25 @@ describe('Redux + React Integration Tests', () => {
       renderWithRealStore(<ProjectList />, realStore);
       
       // Action 1: Create project
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       
       // Action 2: Create another project
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       
-      // Action 3: Select first project
-      const projectButtons = screen.getAllByRole('button');
-      const firstProjectButton = projectButtons.find(button => 
-        button.textContent?.includes('Project 1')
-      );
-      await user.click(firstProjectButton!);
+      // Action 3: Add suite to first project
+      const addSuiteButtons = screen.getAllByText('+ Add Suite');
+      await user.click(addSuiteButtons[0]);
       
       // Verify all state is maintained
       const finalState = realStore.getState();
       expect(finalState.projects.projects).toHaveLength(2);
-      expect(finalState.projects.currentProject?.name).toBe('Project 1');
+      expect(finalState.projects.suites).toHaveLength(1);
+      expect(finalState.projects.suites[0].name).toBe('Suite 1');
       
       // Verify UI reflects all changes
-      expect(screen.getByText('Projects (2)')).toBeInTheDocument();
-      expect(screen.getByText('Current Project')).toBeInTheDocument();
+      expect(screen.getByText('Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Project 2')).toBeInTheDocument();
+      expect(screen.getByText('Suite 1')).toBeInTheDocument();
     });
   });
 

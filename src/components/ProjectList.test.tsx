@@ -16,6 +16,8 @@ const createMockStore = (preloadedState = {}) => {
       projects: {
         projects: [],
         currentProject: null,
+        suites: [],
+        currentSuite: null,
         loading: false,
         error: null,
         ...preloadedState,
@@ -42,17 +44,16 @@ describe('ProjectList Component', () => {
       renderWithStore(<ProjectList />, store);
       
       // Initially no projects
-      expect(screen.getByText('No projects yet. Create one!')).toBeInTheDocument();
+      expect(screen.getByText('No projects yet')).toBeInTheDocument();
       
       // Click create button
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       
       // Should now have 1 project
-      expect(screen.getByText('Projects (1)')).toBeInTheDocument();
       expect(screen.getByText('Project 1')).toBeInTheDocument();
     });
 
-    it('should select a project when clicked', async () => {
+    it('should expand project when clicked', async () => {
       const user = userEvent.setup();
       const store = createMockStore({
         projects: [
@@ -68,24 +69,17 @@ describe('ProjectList Component', () => {
       
       renderWithStore(<ProjectList />, store);
       
-      // Initially no current project selected
-      expect(screen.queryByText('Current Project')).not.toBeInTheDocument();
+      // Initially project should be expanded (we set isExpanded to true by default)
+      expect(screen.getByText('Test Suites (0)')).toBeInTheDocument();
       
-      // Click on project button (more specific selector)
-      const projectButtons = screen.getAllByRole('button');
-      const projectButton = projectButtons.find(button => 
-        button.textContent?.includes('Test Project') && 
-        button.textContent?.includes('A test project')
-      );
+      // Click on project header to collapse
+      const projectHeader = screen.getByText('Test Project').closest('div')?.parentElement;
+      if (projectHeader) {
+        await user.click(projectHeader);
+      }
       
-      await user.click(projectButton!);
-      
-      // Should now show current project details
-      expect(screen.getByText('Current Project')).toBeInTheDocument();
-      expect(screen.getByText(/Name:/)).toBeInTheDocument();
-      // Check that the current project section contains the project name
-      const currentProjectSection = screen.getByText('Current Project').closest('div');
-      expect(currentProjectSection).toHaveTextContent('Test Project');
+      // Should now be collapsed (suites section hidden)
+      expect(screen.queryByText('Test Suites (0)')).not.toBeInTheDocument();
     });
 
     it('should create multiple projects with correct numbering', async () => {
@@ -95,15 +89,16 @@ describe('ProjectList Component', () => {
       renderWithStore(<ProjectList />, store);
       
       // Create first project
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       expect(screen.getByText('Project 1')).toBeInTheDocument();
       
       // Create second project
-      await user.click(screen.getByText('Create New Project'));
+      await user.click(screen.getByText('+ Create New Project'));
       expect(screen.getByText('Project 2')).toBeInTheDocument();
       
-      // Should show count of 2
-      expect(screen.getByText('Projects (2)')).toBeInTheDocument();
+      // Should have both projects visible
+      expect(screen.getByText('Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Project 2')).toBeInTheDocument();
     });
   });
 
@@ -129,8 +124,7 @@ describe('ProjectList Component', () => {
       
       renderWithStore(<ProjectList />, store);
       
-      expect(screen.getByText('No projects yet. Create one!')).toBeInTheDocument();
-      expect(screen.getByText('Projects (0)')).toBeInTheDocument();
+      expect(screen.getByText('No projects yet')).toBeInTheDocument();
     });
 
     it('should show project list when projects exist', () => {
@@ -148,14 +142,13 @@ describe('ProjectList Component', () => {
       
       renderWithStore(<ProjectList />, store);
       
-      expect(screen.getByText('Projects (1)')).toBeInTheDocument();
       expect(screen.getByText('Test Project')).toBeInTheDocument();
-      expect(screen.queryByText('No projects yet. Create one!')).not.toBeInTheDocument();
+      expect(screen.queryByText('No projects yet')).not.toBeInTheDocument();
     });
   });
 
-  describe('Visual State Management', () => {
-    it('should highlight selected project', () => {
+  describe('Suite Management', () => {
+    it('should show suite section when project is expanded', () => {
       const store = createMockStore({
         projects: [
           {
@@ -166,28 +159,16 @@ describe('ProjectList Component', () => {
             updatedAt: '2024-01-01T00:00:00Z',
           },
         ],
-        currentProject: {
-          id: '1',
-          name: 'Test Project',
-          description: 'A test project',
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
-        },
       });
       
       renderWithStore(<ProjectList />, store);
       
-      // Use getAllByText to get all buttons with "Test Project" and pick the first one (the project button)
-      const projectButtons = screen.getAllByRole('button');
-      const projectButton = projectButtons.find(button => 
-        button.textContent?.includes('Test Project') && 
-        button.textContent?.includes('A test project')
-      );
-      
-      expect(projectButton).toHaveStyle('background-color: rgb(173, 216, 230)');
+      // Should show suite section (projects start expanded)
+      expect(screen.getByText('Test Suites (0)')).toBeInTheDocument();
     });
 
-    it('should not highlight unselected projects', () => {
+    it('should add suite to project', async () => {
+      const user = userEvent.setup();
       const store = createMockStore({
         projects: [
           {
@@ -198,18 +179,16 @@ describe('ProjectList Component', () => {
             updatedAt: '2024-01-01T00:00:00Z',
           },
         ],
-        currentProject: null,
       });
       
       renderWithStore(<ProjectList />, store);
       
-      const projectButtons = screen.getAllByRole('button');
-      const projectButton = projectButtons.find(button => 
-        button.textContent?.includes('Test Project') && 
-        button.textContent?.includes('A test project')
-      );
+      // Click add suite button
+      await user.click(screen.getByText('+ Add Suite'));
       
-      expect(projectButton).toHaveStyle('background-color: rgb(255, 255, 255)');
+      // Should now show 1 suite
+      expect(screen.getByText('Test Suites (1)')).toBeInTheDocument();
+      expect(screen.getByText('Suite 1')).toBeInTheDocument();
     });
   });
 });

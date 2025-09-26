@@ -22,6 +22,8 @@ describe('projectSlice', () => {
   const initialState = {
     projects: [],
     currentProject: null,
+    suites: [],
+    currentSuite: null,
     loading: false,
     error: null,
   };
