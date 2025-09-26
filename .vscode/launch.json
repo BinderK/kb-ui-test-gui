@@ -15,71 +15,23 @@
         "NODE_ENV": "development"
       },
       "outputCapture": "std",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
+      "console": "integratedTerminal"
     },
     {
-      "name": "Debug Electron Main Process (with DevTools)",
-      "type": "node",
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-      "runtimeArgs": [
-        ".",
-        "--remote-debugging-port=9222",
-        "--inspect=9229"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      },
-      "outputCapture": "std",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "name": "Debug Electron + React Dev Server",
-      "type": "node",
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "electron:dev"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      },
-      "outputCapture": "std",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "name": "Attach to Electron Main Process",
-      "type": "node",
-      "request": "attach",
-      "port": 9229,
-      "restart": true,
-      "localRoot": "${workspaceFolder}",
-      "remoteRoot": "${workspaceFolder}"
-    },
-    {
-      "name": "Debug React App (Browser)",
+      "name": "Debug React App",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}/src",
       "sourceMaps": true,
-      "userDataDir": false
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Debug Full Electron App",
-      "configurations": [
-        "Debug Electron Main Process",
-        "Debug React App (Browser)"
-      ],
-      "stopAll": true
+      "userDataDir": "${workspaceFolder}/.vscode/chrome-debug-profile",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      },
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor"
+      ]
     }
   ]
 }

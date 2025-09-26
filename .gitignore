@@ -19,6 +19,7 @@ out/
 
 # IDE and editor files
 .vscode/settings.json
+.vscode/chrome-debug-profile/
 .idea/
 *.swp
 *.swo
@@ -58,6 +59,15 @@ jspm_packages/
 
 # Optional eslint cache
 .eslintcache
+
+# Vite specific
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# Prettier
+.prettierignore
 
 # Optional REPL history
 .node_repl_history
