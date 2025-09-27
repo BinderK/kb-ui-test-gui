@@ -7,6 +7,10 @@ export interface Project {
   description: string;
   createdAt: string;
   updatedAt: string;
+  // Added for UI design
+  totalTests?: number;
+  lastRun?: Date;
+  passRate?: number;
 }
 
 // Define the shape of a suite
@@ -17,6 +21,11 @@ export interface Suite {
   description: string;
   createdAt: string;
   updatedAt: string;
+  // Added for UI design
+  passed?: number;
+  failed?: number;
+  pending?: number;
+  passRate?: number;
 }
 
 // Define the shape of our state

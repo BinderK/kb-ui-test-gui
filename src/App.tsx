@@ -1,46 +1,28 @@
+import { AppBar, Box, Container, Toolbar, Typography } from '@mui/material';
 import ProjectList from './components/ProjectList';
 
 function App() {
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      backgroundColor: '#f8fafc',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      <div style={{ 
-        backgroundColor: 'white', 
-        borderBottom: '1px solid #e5e7eb',
-        padding: '20px 0'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <h1 style={{ 
-            textAlign: 'center', 
-            fontSize: '28px', 
-            fontWeight: 'bold',
-            margin: '0',
-            color: '#111827'
-          }}>
-            KB UI Test GUI
-          </h1>
-          <p style={{ 
-            textAlign: 'center', 
-            fontSize: '16px', 
-            color: '#6b7280',
-            margin: '8px 0 0 0'
-          }}>
-            Visual interface for UI testing and automation
-          </p>
-        </div>
-      </div>
+    <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
+      <AppBar position="static" elevation={1} sx={{ backgroundColor: 'white', color: 'text.primary' }}>
+        <Toolbar>
+          <Container maxWidth="xl">
+            <Box textAlign="center" py={2}>
+              <Typography variant="h4" component="h1" fontWeight="bold" color="text.primary">
+                KB UI Test GUI
+              </Typography>
+              <Typography variant="body1" color="text.secondary" mt={1}>
+                Visual interface for UI testing and automation
+              </Typography>
+            </Box>
+          </Container>
+        </Toolbar>
+      </AppBar>
       
-      <div style={{ 
-        maxWidth: '1200px', 
-        margin: '0 auto', 
-        padding: '20px'
-      }}>
+      <Container maxWidth="xl" sx={{ py: 3 }}>
         <ProjectList />
-      </div>
-    </div>
+      </Container>
+    </Box>
   );
 }
 

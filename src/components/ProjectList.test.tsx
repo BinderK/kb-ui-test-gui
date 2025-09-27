@@ -46,11 +46,15 @@ describe('ProjectList Component', () => {
       // Initially no projects
       expect(screen.getByText('No projects yet')).toBeInTheDocument();
       
+      // Type in the input first to enable the button
+      const input = screen.getByPlaceholderText('New project name');
+      await user.type(input, 'Test Project');
+      
       // Click create button
-      await user.click(screen.getByText('+ Create New Project'));
+      await user.click(screen.getByText('Create New Project'));
       
       // Should now have 1 project
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Project')).toBeInTheDocument();
     });
 
     it('should expand project when clicked', async () => {
@@ -69,17 +73,22 @@ describe('ProjectList Component', () => {
       
       renderWithStore(<ProjectList />, store);
       
-      // Initially project should be expanded (we set isExpanded to true by default)
-      expect(screen.getByText('Test Suites (0)')).toBeInTheDocument();
+      // Initially project should be collapsed (projects start collapsed by default)
+      // The text should be in DOM but the Collapse component should be collapsed
+      const suitesText = screen.getByText('Test Suites (0)');
+      expect(suitesText).toBeInTheDocument();
       
-      // Click on project header to collapse
-      const projectHeader = screen.getByText('Test Project').closest('div')?.parentElement;
-      if (projectHeader) {
-        await user.click(projectHeader);
-      }
+      // Check that the Collapse wrapper has collapsed styling
+      const collapseWrapper = suitesText.closest('.MuiCollapse-root');
+      expect(collapseWrapper).toHaveClass('MuiCollapse-hidden');
       
-      // Should now be collapsed (suites section hidden)
-      expect(screen.queryByText('Test Suites (0)')).not.toBeInTheDocument();
+      // Click on project header to expand
+      const projectHeader = screen.getByText("Test Project");
+      await user.click(projectHeader);
+      
+      // Should now be expanded (suites section visible)
+      // Check that the Collapse wrapper no longer has collapsed styling
+      expect(collapseWrapper).not.toHaveClass('MuiCollapse-hidden');
     });
 
     it('should create multiple projects with correct numbering', async () => {
@@ -89,16 +98,20 @@ describe('ProjectList Component', () => {
       renderWithStore(<ProjectList />, store);
       
       // Create first project
-      await user.click(screen.getByText('+ Create New Project'));
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
+      const input1 = screen.getByPlaceholderText('New project name');
+      await user.type(input1, 'Test Project 1');
+      await user.click(screen.getByText('Create New Project'));
+      expect(screen.getByText('Test Project 1')).toBeInTheDocument();
       
       // Create second project
-      await user.click(screen.getByText('+ Create New Project'));
-      expect(screen.getByText('Project 2')).toBeInTheDocument();
+      const input2 = screen.getByPlaceholderText('New project name');
+      await user.type(input2, 'Test Project 2');
+      await user.click(screen.getByText('Create New Project'));
+      expect(screen.getByText('Test Project 2')).toBeInTheDocument();
       
       // Should have both projects visible
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
-      expect(screen.getByText('Project 2')).toBeInTheDocument();
+      expect(screen.getByText('Test Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Project 2')).toBeInTheDocument();
     });
   });
 
@@ -108,7 +121,7 @@ describe('ProjectList Component', () => {
       
       renderWithStore(<ProjectList />, store);
       
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
     it('should show error message when error exists', () => {
@@ -116,7 +129,7 @@ describe('ProjectList Component', () => {
       
       renderWithStore(<ProjectList />, store);
       
-      expect(screen.getByText('Error: Failed to load projects')).toBeInTheDocument();
+      expect(screen.getByText('Failed to load projects')).toBeInTheDocument();
     });
 
     it('should show empty state when no projects exist', () => {
@@ -183,12 +196,16 @@ describe('ProjectList Component', () => {
       
       renderWithStore(<ProjectList />, store);
       
+      // Type in the suite input first to enable the button
+      const suiteInput = screen.getByPlaceholderText('New suite name');
+      await user.type(suiteInput, 'Test Suite');
+      
       // Click add suite button
-      await user.click(screen.getByText('+ Add Suite'));
+      await user.click(screen.getByText('Add Suite'));
       
       // Should now show 1 suite
       expect(screen.getByText('Test Suites (1)')).toBeInTheDocument();
-      expect(screen.getByText('Suite 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Suite')).toBeInTheDocument();
     });
   });
 });

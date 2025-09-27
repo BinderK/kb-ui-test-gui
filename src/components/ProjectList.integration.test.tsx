@@ -36,16 +36,18 @@ describe('Redux + React Integration Tests', () => {
       renderWithRealStore(<ProjectList />, realStore);
       
       // User creates a project
-      await user.click(screen.getByText('+ Create New Project'));
+      const input = screen.getByPlaceholderText('New project name');
+      await user.type(input, 'Test Project');
+      await user.click(screen.getByText('Create New Project'));
       
       // Verify UI updated
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Project')).toBeInTheDocument();
       
       // Verify REAL Redux store updated
       const state = realStore.getState();
       expect(state.projects.projects).toHaveLength(1);
-      expect(state.projects.projects[0].name).toBe('Project 1');
-      expect(state.projects.projects[0].description).toBe('A new test project');
+      expect(state.projects.projects[0].name).toBe('Test Project');
+      expect(state.projects.projects[0].description).toBe('A new test project for Test Project');
     });
 
     it('should create multiple projects and maintain state', async () => {
@@ -55,20 +57,24 @@ describe('Redux + React Integration Tests', () => {
       renderWithRealStore(<ProjectList />, realStore);
       
       // Create first project
-      await user.click(screen.getByText('+ Create New Project'));
+      const input1 = screen.getByPlaceholderText('New project name');
+      await user.type(input1, 'Test Project 1');
+      await user.click(screen.getByText('Create New Project'));
       
       // Create second project
-      await user.click(screen.getByText('+ Create New Project'));
+      const input2 = screen.getByPlaceholderText('New project name');
+      await user.type(input2, 'Test Project 2');
+      await user.click(screen.getByText('Create New Project'));
       
       // Verify UI
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
-      expect(screen.getByText('Project 2')).toBeInTheDocument();
+      expect(screen.getByText('Test Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Project 2')).toBeInTheDocument();
       
       // Verify REAL store state
       const state = realStore.getState();
       expect(state.projects.projects).toHaveLength(2);
-      expect(state.projects.projects[0].name).toBe('Project 1');
-      expect(state.projects.projects[1].name).toBe('Project 2');
+      expect(state.projects.projects[0].name).toBe('Test Project 1');
+      expect(state.projects.projects[1].name).toBe('Test Project 2');
     });
   });
 
@@ -106,16 +112,18 @@ describe('Redux + React Integration Tests', () => {
       expect(screen.getByText('Test Suites (0)')).toBeInTheDocument();
       
       // User adds suite
-      await user.click(screen.getByText('+ Add Suite'));
+      const suiteInput = screen.getByPlaceholderText('New suite name');
+      await user.type(suiteInput, 'Test Suite');
+      await user.click(screen.getByText('Add Suite'));
       
       // Verify UI updated
       expect(screen.getByText('Test Suites (1)')).toBeInTheDocument();
-      expect(screen.getByText('Suite 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Suite')).toBeInTheDocument();
       
       // Verify REAL store updated
       const state = storeWithProject.getState();
       expect(state.projects.suites).toHaveLength(1);
-      expect(state.projects.suites[0].name).toBe('Suite 1');
+      expect(state.projects.suites[0].name).toBe('Test Suite');
       expect(state.projects.suites[0].projectId).toBe('1');
     });
   });
@@ -128,25 +136,31 @@ describe('Redux + React Integration Tests', () => {
       renderWithRealStore(<ProjectList />, realStore);
       
       // Action 1: Create project
-      await user.click(screen.getByText('+ Create New Project'));
+      const input1 = screen.getByPlaceholderText('New project name');
+      await user.type(input1, 'Test Project 1');
+      await user.click(screen.getByText('Create New Project'));
       
       // Action 2: Create another project
-      await user.click(screen.getByText('+ Create New Project'));
+      const input2 = screen.getByPlaceholderText('New project name');
+      await user.type(input2, 'Test Project 2');
+      await user.click(screen.getByText('Create New Project'));
       
       // Action 3: Add suite to first project
-      const addSuiteButtons = screen.getAllByText('+ Add Suite');
+      const suiteInputs = screen.getAllByPlaceholderText('New suite name');
+      await user.type(suiteInputs[0], 'Test Suite');
+      const addSuiteButtons = screen.getAllByText('Add Suite');
       await user.click(addSuiteButtons[0]);
       
       // Verify all state is maintained
       const finalState = realStore.getState();
       expect(finalState.projects.projects).toHaveLength(2);
       expect(finalState.projects.suites).toHaveLength(1);
-      expect(finalState.projects.suites[0].name).toBe('Suite 1');
+      expect(finalState.projects.suites[0].name).toBe('Test Suite');
       
       // Verify UI reflects all changes
-      expect(screen.getByText('Project 1')).toBeInTheDocument();
-      expect(screen.getByText('Project 2')).toBeInTheDocument();
-      expect(screen.getByText('Suite 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Test Project 2')).toBeInTheDocument();
+      expect(screen.getByText('Test Suite')).toBeInTheDocument();
     });
   });
 
@@ -163,7 +177,7 @@ describe('Redux + React Integration Tests', () => {
       renderWithRealStore(<ProjectList />, realStore);
       
       // Verify error appears in UI
-      expect(screen.getByText('Error: Failed to create project')).toBeInTheDocument();
+      expect(screen.getByText('Failed to create project')).toBeInTheDocument();
       
       // Verify error is in store
       const state = realStore.getState();
